@@ -1,0 +1,132 @@
+{
+	"info": {
+		"_postman_id": "8211ad4b-e58f-4f65-a842-a8f96ebd5093",
+		"name": "NeuroFleetUser",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37885061"
+	},
+	"item": [
+		{
+			"name": "signup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"sahasuchorit@gmail.com\",\r\n  \"name\": \"Suchorit Saha\",\r\n  \"role\": \"admin\",\r\n  \"gender\": \"male\",\r\n  \"adharNo\":\"123456789\",\r\n  \"password\": \"suchorit\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"sahasuchorit@gmail.com\",\r\n  \"password\": \"suchorit\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWhhc3VjaG9yaXRAZ21haWwuY29tIiwiaWF0IjoxNzY0OTQ2NTA5LCJleHAiOjE3NjUwMzI5MDl9.ERxBdkvoTlrQvzIEK66-x2pLzQk7lBEs3mmePt9tGho",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/user/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWhhc3VjaG9yaXRAZ21haWwuY29tIiwiaWF0IjoxNzY0OTQ2NTA5LCJleHAiOjE3NjUwMzI5MDl9.ERxBdkvoTlrQvzIEK66-x2pLzQk7lBEs3mmePt9tGho",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"sahasuchorit@gmail.com\",\r\n  \"password\": \"suchorit\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/user/profile",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
