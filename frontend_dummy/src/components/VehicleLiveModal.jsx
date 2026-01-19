@@ -6,7 +6,7 @@ const VehicleLiveModal = ({ vehicle, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-xl p-6 w-full max-w-2xl relative shadow-lg">
+      <div className="bg-white rounded-xl p-6 w-full max-w-2xl relative shadow-lg max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-slate-600 hover:text-slate-900"
@@ -28,6 +28,16 @@ const VehicleLiveModal = ({ vehicle, onClose }) => {
           <p className="text-slate-700">
             <strong>Speed:</strong> {vehicle.liveSpeed} km/h
           </p>
+          {vehicle.liveEngineHealth !== undefined && (
+            <p className="text-slate-700">
+              <strong>Engine Health:</strong> {vehicle.liveEngineHealth}%
+            </p>
+          )}
+          {vehicle.liveTireWear !== undefined && (
+            <p className="text-slate-700">
+              <strong>Tire Wear:</strong> {vehicle.liveTireWear}%
+            </p>
+          )}
         </div>
 
         {vehicle.liveLat && vehicle.liveLon && (

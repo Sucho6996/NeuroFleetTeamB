@@ -34,6 +34,12 @@ const VehicleCard = ({ vehicle, onEdit, onDelete, onView }) => {
       </div>
 
       {/* Telemetry */}
+      {vehicle.engineHealth !== null && vehicle.engineHealth !== undefined && (
+        <TelemetryBar label="Engine Health" value={vehicle.engineHealth} color="bg-emerald-600" />
+      )}
+      {vehicle.tireWear !== null && vehicle.tireWear !== undefined && (
+        <TelemetryBar label="Tire Wear" value={vehicle.tireWear} color="bg-orange-500" />
+      )}
       {vehicle.battery !== null && (
         <TelemetryBar label="Battery" value={vehicle.battery} color="bg-green-500" />
       )}

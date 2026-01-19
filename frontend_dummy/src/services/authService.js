@@ -166,11 +166,13 @@ export const getProfile = async () => {
     switch (role) {
       case "customer":
         profileEndpoint = "/user/profile";
-        httpMethod = "post";   // <-- changed to POST for User/Customer role
+        httpMethod = "post";
         break;
       case "driver":
         profileEndpoint = "/driver/profile";
-        httpMethod = "get";
+        // Most of our backend profile endpoints use POST,
+        // align driver with that to avoid 401s due to method mismatch.
+        httpMethod = "post";
         break;
       case "fleet_manager":
         profileEndpoint = "/fleetManager/profile";

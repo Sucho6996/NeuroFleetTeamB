@@ -62,7 +62,7 @@ const AddVehicleModal = ({ onClose, onAdd }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-green-50 border border-green-200 rounded-xl w-full max-w-lg p-6 relative shadow-lg">
+      <div className="bg-green-50 border border-green-200 rounded-xl w-full max-w-lg p-6 relative shadow-lg max-h-[90vh] overflow-y-auto">
 
         {/* Close Button */}
         <button
@@ -189,13 +189,21 @@ const AddVehicleModal = ({ onClose, onAdd }) => {
             className="w-full p-2 rounded-lg border border-green-200 bg-green-100 text-green-900"
           />
 
-          <button
-            type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition"
-          >
-            Add Vehicle
-          </button>
-
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-2 rounded-lg transition font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition font-medium"
+            >
+              Add Vehicle
+            </button>
+          </div>
         </form>
       </div>
     </div>

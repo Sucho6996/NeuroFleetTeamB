@@ -11,6 +11,7 @@ import {
   deleteVehicle,
   updateVehicleFuel,
   reportOverspeeding,
+  addAlert,
 } from "../../services/fleetManagerApis";
 
 const FleetInventory = () => {
@@ -22,6 +23,8 @@ const FleetInventory = () => {
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
   const speedIntervalRef = useRef(null);
+  const ENGINE_HEALTH_THRESHOLD = 25;
+  const TIRE_WEAR_THRESHOLD = 75;
 
   // 🔁 Fetch vehicles from DB
   const fetchVehicles = async () => {
@@ -41,6 +44,13 @@ const FleetInventory = () => {
           city: extractCity(v.location),
         },
         type: v.type,
+        engineHealth:
+          v.engineHealth ?? v.engineTemp ?? 100,
+        tireWear: v.tireWear ?? 0,
+        batteryHealth:
+          v.batteryHealth ??
+          (v.type?.toLowerCase().includes("ev") ? v.fuel ?? 100 : null),
+        fuelEfficiency: v.fuelEfficiency ?? v.mileage ?? null,
       }));
 
       setVehicles(mappedVehicles);
@@ -111,6 +121,44 @@ const FleetInventory = () => {
 
   // 🚗 LIVE VEHICLE TRACKING
   const handleVehicleClick = async (vehicle) => {
+    const randomWearStep = () => Math.floor(Math.random() * 2) + 2; // 2-3 points
+    let engineAlertTriggered = false;
+    let tireAlertTriggered = false;
+
+    const maybeSendHealthAlerts = async () => {
+      if (!engineAlertTriggered && liveEngineHealth <= ENGINE_HEALTH_THRESHOLD) {
+        engineAlertTriggered = true;
+        alert(
+          `🚨 Engine Health Alert!\nVehicle: ${vehicle.number}\nHealth: ${liveEngineHealth}%`
+        );
+        try {
+          await addAlert({
+            regNo: vehicle.number,
+            issue: `Engine health low (${liveEngineHealth}%)`,
+            actionNeeded: "Schedule engine diagnostics/maintenance",
+          });
+        } catch (err) {
+          console.error("Engine alert API failed", err);
+        }
+      }
+
+      if (!tireAlertTriggered && liveTireWear >= TIRE_WEAR_THRESHOLD) {
+        tireAlertTriggered = true;
+        alert(
+          `🚨 Tire Wear Alert!\nVehicle: ${vehicle.number}\nWear: ${liveTireWear}%`
+        );
+        try {
+          await addAlert({
+            regNo: vehicle.number,
+            issue: `Tire wear high (${liveTireWear}%)`,
+            actionNeeded: "Inspect/rotate tires or schedule replacement",
+          });
+        } catch (err) {
+          console.error("Tire wear alert API failed", err);
+        }
+      }
+    };
+
     // Clear previous interval
     if (speedIntervalRef.current) {
       clearInterval(speedIntervalRef.current);
@@ -130,6 +178,14 @@ const FleetInventory = () => {
       (vehicle.fuel ?? vehicle.battery ?? 100) - (Math.floor(Math.random() * 2) + 1),
       0
     );
+    let liveEngineHealth = Math.max(
+      (vehicle.engineHealth ?? 100) - randomWearStep(),
+      0
+    );
+    let liveTireWear = Math.min(
+      (vehicle.tireWear ?? 0) + randomWearStep(),
+      100
+    );
 
     // Backend fuel update (initial)
     try {
@@ -146,12 +202,21 @@ const FleetInventory = () => {
         liveLon,
         liveFuel: 0,
         liveSpeed: 0,
+        liveEngineHealth,
+        liveTireWear,
       });
 
       setVehicles((prev) =>
         prev.map((v) =>
           v.number === vehicle.number
-            ? { ...v, fuel: 0, battery: 0, status: "MAINTENANCE" }
+            ? {
+                ...v,
+                fuel: 0,
+                battery: 0,
+                engineHealth: liveEngineHealth,
+                tireWear: liveTireWear,
+                status: "MAINTENANCE",
+              }
             : v
         )
       );
@@ -169,21 +234,31 @@ const FleetInventory = () => {
       liveLon,
       liveFuel,
       liveSpeed,
+      liveEngineHealth,
+      liveTireWear,
     });
 
     // Optimistic fuel update
     setVehicles((prev) =>
       prev.map((v) =>
         v.number === vehicle.number
-          ? { ...v, fuel: liveFuel, battery: liveFuel }
+          ? {
+              ...v,
+              fuel: liveFuel,
+              battery: liveFuel,
+              engineHealth: liveEngineHealth,
+              tireWear: liveTireWear,
+            }
           : v
       )
     );
 
+    await maybeSendHealthAlerts();
+
     // Speed simulation
     speedIntervalRef.current = setInterval(async () => {
       // Stop if fuel finished
-      if (liveFuel <= 0) {
+      if (liveFuel <= 0 || liveEngineHealth <= 0 || liveTireWear >= 100) {
         clearInterval(speedIntervalRef.current);
         speedIntervalRef.current = null;
 
@@ -191,26 +266,56 @@ const FleetInventory = () => {
           ...prev,
           liveSpeed: 0,
           liveFuel: 0,
+          liveEngineHealth: Math.max(liveEngineHealth, 0),
+          liveTireWear: Math.min(liveTireWear, 100),
         }));
+
+        setVehicles((prev) =>
+          prev.map((v) =>
+            v.number === vehicle.number
+              ? {
+                  ...v,
+                  status: "MAINTENANCE",
+                  fuel: Math.max(liveFuel, 0),
+                  battery: Math.max(liveFuel, 0),
+                  engineHealth: Math.max(liveEngineHealth, 0),
+                  tireWear: Math.min(liveTireWear, 100),
+                }
+              : v
+          )
+        );
 
         return;
       }
 
+      liveFuel = Math.max(liveFuel - 1, 0);
+      liveEngineHealth = Math.max(liveEngineHealth - randomWearStep(), 0);
+      liveTireWear = Math.min(liveTireWear + randomWearStep(), 100);
       liveSpeed = Math.floor(Math.random() * 121);
 
       setSelectedVehicle((prev) => ({
         ...prev,
         liveSpeed,
         liveFuel,
+        liveEngineHealth,
+        liveTireWear,
       }));
 
       setVehicles((prev) =>
         prev.map((v) =>
           v.number === vehicle.number
-            ? { ...v, fuel: liveFuel, battery: liveFuel }
+            ? {
+                ...v,
+                fuel: liveFuel,
+                battery: liveFuel,
+                engineHealth: liveEngineHealth,
+                tireWear: liveTireWear,
+              }
             : v
         )
       );
+
+      await maybeSendHealthAlerts();
 
       // Overspeed alert
       if (liveSpeed >= 100) {
@@ -290,7 +395,7 @@ const FleetInventory = () => {
                 handleVehicleClick(vehicle);
               }
             }}
-            className={vehicle.status === "MAINTENANCE" || vehicle.status === "Maintenance" ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
+            className="cursor-pointer"
           >
             <VehicleCard
               vehicle={vehicle}

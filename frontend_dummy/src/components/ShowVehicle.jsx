@@ -14,7 +14,26 @@ const ShowVehicle = ({ regNo, onBack }) => {
     try {
       setLoading(true);
       const data = await getVehicleByRegNo(regNo);
-      setVehicle(data);
+      // Handle different backend response shapes
+      let resolved = null;
+
+      if (!data) {
+        resolved = null;
+      } else if (Array.isArray(data)) {
+        resolved = data[0] || null;
+      } else if (data.data) {
+        if (Array.isArray(data.data)) {
+          resolved = data.data[0] || null;
+        } else {
+          resolved = data.data;
+        }
+      } else if (data.vehicle) {
+        resolved = data.vehicle;
+      } else {
+        resolved = data;
+      }
+
+      setVehicle(resolved);
     } catch (err) {
       console.error(err);
       alert("Failed to load vehicle details");
@@ -50,7 +69,7 @@ const ShowVehicle = ({ regNo, onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen bg-slate-50 p-4 md:p-6">
       <button
         onClick={onBack}
         className="mb-6 flex items-center gap-2 text-green-600 hover:text-green-700 font-medium"
@@ -59,67 +78,71 @@ const ShowVehicle = ({ regNo, onBack }) => {
         Back
       </button>
 
-      <h2 className="text-3xl font-bold text-slate-900 mb-6">Vehicle Details</h2>
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">
+          Vehicle Details
+        </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Vehicle Information */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900 mb-4">
-            Vehicle Information
-          </h3>
-          <div className="space-y-2 text-slate-700">
-            <p><strong>Registration No:</strong> {vehicle.regNo}</p>
-            <p><strong>Name:</strong> {vehicle.name}</p>
-            <p><strong>Type:</strong> {vehicle.type}</p>
-            <p><strong>Status:</strong> {vehicle.status}</p>
-            <p><strong>Fuel:</strong> {vehicle.fuel}%</p>
-            <p><strong>Location:</strong> {vehicle.location}</p>
-            {vehicle.licenseNo && (
-              <p><strong>License No:</strong> {vehicle.licenseNo}</p>
-            )}
-            {vehicle.distanceCovered !== undefined && (
-              <p><strong>Distance Covered:</strong> {vehicle.distanceCovered} km</p>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {/* Vehicle Information */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-slate-900 mb-4">
+              Vehicle Information
+            </h3>
+            <div className="space-y-2 text-slate-700">
+              <p><strong>Registration No:</strong> {vehicle.regNo}</p>
+              <p><strong>Name:</strong> {vehicle.name}</p>
+              <p><strong>Type:</strong> {vehicle.type}</p>
+              <p><strong>Status:</strong> {vehicle.status}</p>
+              <p><strong>Fuel:</strong> {vehicle.fuel}%</p>
+              <p><strong>Location:</strong> {vehicle.location}</p>
+              {vehicle.licenseNo && (
+                <p><strong>License No:</strong> {vehicle.licenseNo}</p>
+              )}
+              {vehicle.distanceCovered !== undefined && (
+                <p><strong>Distance Covered:</strong> {vehicle.distanceCovered} km</p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Health Metrics */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900 mb-4">
-            Vehicle Health
-          </h3>
-          <div className="space-y-2 text-slate-700">
-            {vehicle.engineTemp !== undefined && (
-              <p><strong>Engine Temperature:</strong> {vehicle.engineTemp} °C</p>
-            )}
-            {vehicle.tireWear !== undefined && (
-              <p><strong>Tire Wear:</strong> {vehicle.tireWear}%</p>
-            )}
-            {vehicle.batteryHealth !== undefined && (
-              <p><strong>Battery Health:</strong> {vehicle.batteryHealth}%</p>
-            )}
-            {vehicle.fuelEfficiency !== undefined && (
-              <p><strong>Fuel Efficiency:</strong> {vehicle.fuelEfficiency} km/l</p>
-            )}
+          {/* Health Metrics */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-slate-900 mb-4">
+              Vehicle Health
+            </h3>
+            <div className="space-y-2 text-slate-700">
+              {vehicle.engineTemp !== undefined && (
+                <p><strong>Engine Temperature:</strong> {vehicle.engineTemp} °C</p>
+              )}
+              {vehicle.tireWear !== undefined && (
+                <p><strong>Tire Wear:</strong> {vehicle.tireWear}%</p>
+              )}
+              {vehicle.batteryHealth !== undefined && (
+                <p><strong>Battery Health:</strong> {vehicle.batteryHealth}%</p>
+              )}
+              {vehicle.fuelEfficiency !== undefined && (
+                <p><strong>Fuel Efficiency:</strong> {vehicle.fuelEfficiency} km/l</p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Driver Information */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900 mb-4">
-            Driver Information
-          </h3>
-          <div className="space-y-2 text-slate-700">
-            {vehicle.driverName ? (
-              <>
-                <p><strong>Name:</strong> {vehicle.driverName}</p>
-                {vehicle.driverContact && (
-                  <p><strong>Contact:</strong> {vehicle.driverContact}</p>
-                )}
-              </>
-            ) : (
-              <p className="text-slate-500">No driver assigned.</p>
-            )}
+          {/* Driver Information */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-slate-900 mb-4">
+              Driver Information
+            </h3>
+            <div className="space-y-2 text-slate-700">
+              {vehicle.driverName ? (
+                <>
+                  <p><strong>Name:</strong> {vehicle.driverName}</p>
+                  {vehicle.driverContact && (
+                    <p><strong>Contact:</strong> {vehicle.driverContact}</p>
+                  )}
+                </>
+              ) : (
+                <p className="text-slate-500">No driver assigned.</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
