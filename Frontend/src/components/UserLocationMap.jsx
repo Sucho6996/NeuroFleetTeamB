@@ -4,21 +4,38 @@ import "leaflet/dist/leaflet.css";
 
 const UserLocationMap = () => {
   useEffect(() => {
-    const map = L.map("user-map").setView([22.7196, 75.8577], 13); // Indore example
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
 
-    L.marker([22.7196, 75.8577])
-      .addTo(map)
-      .bindPopup("Your Location")
-      .openPopup();
+        const map = L.map("user-map").setView([latitude, longitude], 13);
 
-    return () => {
-      map.remove();
-    };
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors",
+        }).addTo(map);
+
+        L.marker([latitude, longitude])
+          .addTo(map)
+          .bindPopup("Your Current Location")
+          .openPopup();
+
+        // Cleanup
+        return () => {
+          map.remove();
+        };
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        alert("Unable to fetch location. Please allow location access.");
+      }
+    );
   }, []);
+
 
   return (
     <div
