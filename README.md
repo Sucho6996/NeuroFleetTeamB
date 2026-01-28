@@ -32,3 +32,47 @@ Each service README lists its endpoints with inputs/outputs and examples:
 ## Configuration
 Create each service’s `src/main/resources/application.properties` (gitignored) with datasource, JWT secrets, `server.port`, and any Eureka settings where applicable.
 
+
+## Frontend Service
+The frontend application is located in the `frontend_dummy` directory. It is a React-based SPA that interfaces with the Neuro Fleet backend microservices.
+
+### Key Features
+- **User Authentication**: Secure login and signup flows for different user roles (Admin, Driver, Fleet Manager, User).
+- **Role-Based Dashboards**: Tailored interfaces for Admins, Fleet Managers, and Drivers.
+- **Route Optimization**: Interactive map interface using Leaflet for route planning and optimization.
+- **Inventory Management**: Tools for tracking vehicle parts and inventory levels.
+- **Booking System**: Interface for users to book vehicles and manage reservations.
+- **Analytics**: Data visualization using Recharts for fleet performance and usage stats.
+
+### Prerequisites
+- Node.js
+- npm (Node Package Manager)
+
+### Setup & Run
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend_dummy
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Project Structure
+- `src/components`: Reusable UI components.
+- `src/pages`: Main application pages (Auth, Dashboards, RouteOptimization, etc.).
+- `src/services`: API service modules interacting with backend endpoints (Admin, Driver, FleetManager, User).
+- `src/context`: React context for global state management.
+
+### Technologies
+- **Framework**: React with Vite
+- **Styling**: TailwindCSS
+- **Maps**: Leaflet & React-Leaflet
+- **Charts**: Recharts
+- **HTTP Client**: Axios
+
+
